@@ -107,7 +107,7 @@
 </head>
 <body>
   <div class="game-container">
-    <h1>Digit Pairs</h1>
+    <h1>Digit Pairs v2</h1>
     <div id="rowsContainer"></div>
   </div>
 
@@ -159,6 +159,18 @@ const digitInputs = document.querySelectorAll(".digit-input");
 for (let i = 0; i < digitInputs.length; i++)
 {
     let input = digitInputs[i];
+
+    input.addEventListener("input", () => 
+    {
+        // only permit single digit (0–9) input on mobile
+        const v = input.value;
+        if (v.length === 0) { } // cleared by backspace, handled elsewhere
+        else if (v.length === 1 && v >= "0" && v <= "9") { } // permitted
+        else // remove any non-digit input (".", ",", "-", etc.)
+            input.value = "";
+        
+        updateGameState();
+    });
 
     input.addEventListener("keydown", (event) => 
     {
