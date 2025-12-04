@@ -4,35 +4,76 @@
   <meta charset="utf-8" />
   <title>Digit Pairs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <script src="array-methods.js"></script>
 <style>
     body {
-      xfont-family: system-ui, sans-serif;
-      margin: 20px;
-      background: #f4f4f4;
+      font-family: system-ui, sans-serif;
+      margin: 0px;
+      padding: 0px;
+      background: #f8f0f8;
       display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #header {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      margin: 0 0 24px 0;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #408;
+      text-shadow:
+            -1px -1px 0 #00000088,
+             1px -1px 0 #00000088,
+            -1px  1px 0 #00000088,
+             1px  1px 0 #00000088;
+      letter-spacing: 2px;
+    }
+
+    #pageContent
+    {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* board layout */
+
+    #rowsContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .hint-column,
+    .hint-spacer {
+      width: 4rem; 
+      padding-right: 0.5rem;
+      display: flex;
+      flex-direction: column;
       justify-content: center;
     }
 
-    .game-container {
-      background: #fff;
-      padding: 16px;
-      border-radius: 12px;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    .hint-column {
+      font-family: "Courier New", monospace;
+      font-size: 0.8rem;
+      line-height: 1.1;
+      text-align: right;
     }
 
-    h1 {
-      text-align: center;
-      margin: 0 0 12px;
-      font-size: 1.4rem;
+    .hint-line-available {
+      font-weight: bold;
+      color: #000;
     }
 
-    #rows {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    .hint-line-blocked {
+      font-weight: normal;
+      color: #888;
     }
 
     .row {
@@ -55,7 +96,6 @@
     .digit-input, .sum-box {
       border-radius: 8px;
       box-sizing: border-box;
-      font-family: system-ui, sans-serif;
       font-weight: bold;
       font-size: 2.5rem;
     }
@@ -67,9 +107,9 @@
       color: #666;
       text-shadow:
             -1px -1px 0 #000,
-            1px -1px 0 #000,
+             1px -1px 0 #000,
             -1px  1px 0 #000,
-            1px  1px 0 #000;
+             1px  1px 0 #000;
     }
 
     .digit-input:focus {
@@ -84,58 +124,243 @@
         color: #fff;
         text-shadow:
             -1px -1px 0 #000,
-            1px -1px 0 #000,
+             1px -1px 0 #000,
             -1px  1px 0 #000,
-            1px  1px 0 #000;
+             1px  1px 0 #000;
     }
 
     .operator { 
       font-size: 2rem;
       padding: 4px;
-      font-weight: bold;
-      font-family: system-ui, sans-serif;
+      font-weight: bold; 
       line-height: 4rem;
     }
 
-    .digit-valid   { border: 4px solid  #080 !important; }
-    .digit-invalid { border: 4px dashed #B00 !important; }
-    .focus-correct { border: 6px double #080 !important; }
-    .focus-neutral { border: 6px double #AAA !important; }
-    
+    .digit-valid    { border: 4px solid  #080 !important; }
+    .digit-invalid  { border: 4px dashed #B00 !important; }
+    .focus-correct  { border: 6px double #080 !important; }
+    .focus-neutral  { border: 6px double #888 !important; }
+    .focus-incorrect{ border: 6px double #B00 !important; }
+
+    /* button styles */
+
+    #digitButtonsContainer {
+      margin-top: 40px; 
+      display: flex;
+      justify-content: center;
+    }
+
+     /* toolbar contains buttons: New / Rules / Hints / Erase */
+
+    #toolbarButtonRow {
+      margin: 40px 0 0 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .digit-buttons-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .digit-buttons-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+   
+    .digit-button, .toolbar-button {
+      border-radius: 50%;
+      border: 2px solid #408;
+      height: 3.5rem; 
+      background: linear-gradient(to bottom, #edf, #cbe);
+      transition: transform 0.1s ease;
+      color: #408;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow:
+        0 3px 4px rgba(0, 0, 0, 0.25),
+        inset 0 2px 2px rgba(255,255,255,0.8),
+        inset 0 -2px 2px rgba(0,0,0,0.15);
+    }
+
+    .digit-button:active, .toolbar-button:active {
+      transform: scale(0.94) translateY(1px);
+    }
+
+    .digit-button {
+      width: 3.5rem;
+      font-size: 1.6rem;    
+    }
+
+    .toolbar-button {
+      width: 5.0rem;
+      font-size: 1.2rem;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal-hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      padding: 16px 20px;
+      border-radius: 12px;
+      max-width: 90%;
+      width: 360px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      color: #222;
+    }
+
+    .modal-content h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .modal-body ul {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: center;
+    }
+
+    li { margin: 10px; }
 </style>
 
 </head>
 <body>
-  <div class="game-container">
-    <h1>Digit Pairs v2</h1>
-    <div id="rowsContainer"></div>
+
+<div>
+  <div id="header">Digit Pairs</div>
+
+  <div id="rowsContainer"></div>
+
+  <div id="digitButtonsContainer"></div>
+
+  <div id="toolbarButtonRow">
+      <button id="newButton" class="toolbar-button" type="button">New</button>
+      <button id="rulesButton" class="toolbar-button" type="button">Rules</button>
+      <button id="hintsButton" class="toolbar-button" type="button">Hints</button>
+      <button id="eraseButton" class="toolbar-button" type="button">Erase</button>
   </div>
+</div>
+
+<div id="modalOverlay" class="modal-overlay modal-hidden">
+    <div class="modal-content">
+        <h2 id="modalTitle">Title</h2>
+        <div id="modalBody" class="modal-body"></div>
+        <div class="modal-footer">
+            <button id="modalCloseButton" class="toolbar-button" type="button">Close</button>
+        </div>
+    </div>
+</div>
 
 <script>
    
-const sumValues = [5, 7, 10, 11, 12];
 const rowsContainer = document.getElementById("rowsContainer");
+const hintColumns = [];
+const hintPairsPerRow = [];
+let hintsEnabled = false;
+let sumValues = [];
 
-for (let i = 0; i < sumValues.length; i++)
+// puzzle generation
+function generateNewSums()
+{
+    while (true)
+    {
+        let digits = [0,1,2,3,4,5,6,7,8,9];
+        digits.shuffle();
+
+        let sums = [];
+        let valid = true;
+
+        for (let i = 0; i < 10; i += 2)
+        {
+            let sum = digits[i] + digits[i+1];  
+
+            // sums = 1, 2, 16, 17 are not allowed
+            //   because they only have one solution
+            //   (trivializing the game)
+            if (sum < 3 || sum > 15)
+                valid = false;
+
+            sums.push(sum);
+        }
+
+        let distinct = new Set(sums);
+        // all sums must be distinct
+        if (distinct.size != 5)
+            valid = false;
+
+        // if invalid, start over
+        if (!valid)
+            continue;
+
+        // sort in ascending order
+        sums.numericSort();
+        return sums;
+    }
+}
+
+function generateHintPairs(sum) 
+{
+    let pairs = [];
+    for (let a = 0; a <= 9; a++)
+        for (let b = a + 1; b <= 9; b++)
+            if (a + b === sum)
+                pairs.push([a, b]);
+    return pairs;
+}
+
+// create board
+
+sumValues = generateNewSums();
+
+for (let i = 0; i < 5; i++)
 {
     let sumValue = sumValues[i];
+
+    const hintColumn = document.createElement("div");
+    hintColumn.className = "hint-column";
+    hintColumns.push(hintColumn);
 
     const row = document.createElement("div");
     row.className = "row";
 
-    const digitLeft = document.createElement("input");
-    digitLeft.type = "text";
+    const digitLeft = document.createElement("div");
     digitLeft.className = "digit-input";
-    digitLeft.setAttribute("inputmode", "numeric");
+    digitLeft.tabIndex = 0;
 
     const plusDiv = document.createElement("div");
     plusDiv.className = "operator";
     plusDiv.textContent = "+";
 
-    const digitRight = document.createElement("input");
-    digitRight.type = "text";
+    const digitRight = document.createElement("div");
     digitRight.className = "digit-input";
-    digitRight.setAttribute("inputmode", "numeric");
+    digitRight.tabIndex = 0;
 
     const equalsDiv = document.createElement("div");
     equalsDiv.className = "operator";
@@ -145,32 +370,34 @@ for (let i = 0; i < sumValues.length; i++)
     sumBox.className = "sum-box";
     sumBox.textContent = String(sumValue);
 
+    const hintSpacer = document.createElement("div");
+    hintSpacer.className = "hint-spacer";
+
+    row.appendChild(hintColumn);
     row.appendChild(digitLeft);
     row.appendChild(plusDiv);
     row.appendChild(digitRight);
     row.appendChild(equalsDiv);
     row.appendChild(sumBox);
+    row.appendChild(hintSpacer);
 
     rowsContainer.appendChild(row);
+
+    hintPairsPerRow.push( generateHintPairs(sumValue) );
 }
 
 const digitInputs = document.querySelectorAll(".digit-input");
+const rows = document.querySelectorAll(".row");
+const sumBoxes = document.querySelectorAll(".sum-box");
+
+// track currently focused box
+let currentInput = null;
+
+// input handling
 
 for (let i = 0; i < digitInputs.length; i++)
 {
     let input = digitInputs[i];
-
-    input.addEventListener("input", () => 
-    {
-        // only permit single digit (0–9) input on mobile
-        const v = input.value;
-        if (v.length === 0) { } // cleared by backspace, handled elsewhere
-        else if (v.length === 1 && v >= "0" && v <= "9") { } // permitted
-        else // remove any non-digit input (".", ",", "-", etc.)
-            input.value = "";
-        
-        updateGameState();
-    });
 
     input.addEventListener("keydown", (event) => 
     {
@@ -180,17 +407,17 @@ for (let i = 0; i < digitInputs.length; i++)
         if (key === "Tab" || key === "Home" || key === "End")   
             return;
 
-        // block other keys
+        // block other keys default behavior
         event.preventDefault();
 
         if (key >= "0" && key <= "9") // overwrite digits
         {
-            input.value = key;
+            input.textContent = key;
             updateGameState();
         }
         else if (key === "Backspace" || key === "Delete" || key === " ") // clear
         {
-            input.value = "";
+            input.textContent = "";
             updateGameState();
         }        
         else if (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown") // navigation
@@ -211,47 +438,45 @@ for (let i = 0; i < digitInputs.length; i++)
         }
     });
 
-    input.addEventListener("focus", updateGameState);
+    input.addEventListener("focus", () => 
+    {
+        currentInput = input;
+        updateGameState();
+    });
+
     input.addEventListener("blur", updateGameState);
 }
 
-// -------------------------------
-
-const rows = Array.from(document.querySelectorAll(".row"));
-const sumBoxes = Array.from(document.querySelectorAll(".sum-box"));
-
 function updateGameState() 
 {
-    // clear current status border styles
+    // clear current status border styles on digit and sum boxes
     for (let i = 0; i < digitInputs.length; i++)
-        digitInputs[i].classList.remove("digit-valid", "digit-invalid", "focus-correct", "focus-neutral");
-
+        digitInputs[i].classList.remove("digit-valid", "digit-invalid", "focus-correct", "focus-neutral", "focus-incorrect");
     for (let i = 0; i < sumBoxes.length; i++)
         sumBoxes[i].classList.remove("digit-valid", "digit-invalid", "focus-correct", "focus-neutral");
 
     // check if row sum is correct
     for (let i = 0; i < rows.length; i++) // 5 rows
     {
-        row = rows[i];
-        // get elements from this row
+        const row = rows[i];
         let [digitLeft, digitRight] = row.querySelectorAll(".digit-input");
-        let sumBox = row.querySelector(".sum-box");
-        
-        let valueLeft = digitLeft.value;
-        let valueRight = digitRight.value;
+        let sumBox = sumBoxes[i];
 
-        // if either box is empty, continue on to check next row
-        if (valueLeft == "" || valueRight == "")
+        let valueLeft = digitLeft.textContent;
+        let valueRight = digitRight.textContent;
+
+        // if either box is empty, row not yet correct
+        if (valueLeft === "" || valueRight === "")
             continue; 
+
         // convert strings to numbers
         valueLeft = parseInt(valueLeft, 10);
         valueRight = parseInt(valueRight, 10);
 
-        if (valueLeft + valueRight == sumValues[i]) 
+        if (valueLeft + valueRight === sumValues[i]) 
         {
             digitLeft.classList.add("digit-valid");
             digitRight.classList.add("digit-valid");
-            sumBox.classList.add("digit-valid");
         } 
         else 
         {
@@ -260,22 +485,24 @@ function updateGameState()
         }
     }
 
-    // invalid overrides valid
+    // invalid status overrides valid status
+    // ex: if digit is repeated, it doesn't matter if sum is correct
 
     // count number of times each digit occurs
     let digitCounts = Array(10).fill(0);
     for (let i = 0; i < digitInputs.length; i++)
     {
         let input = digitInputs[i];
-        if (input.value !== "")
-            digitCounts[input.value] += 1;        
+        let v = input.textContent;
+        if (v !== "")
+            digitCounts[v] += 1;        
     }
 
     // mark non-empty duplicates as incorrect
     for (let i = 0; i < digitInputs.length; i++)
     {
         let input = digitInputs[i];
-        let v = input.value;
+        let v = input.textContent;
         if (v !== "" && digitCounts[v] > 1)
         {
             input.classList.add("digit-invalid");
@@ -283,19 +510,221 @@ function updateGameState()
         }
     }
 
-    // if any inputs have focus, update border style
-    for (let i = 0; i < digitInputs.length; i++)
+    // sum box is valid if and only if both digits are valid
+    for (let i = 0; i < rows.length; i++)
     {
-        let input = digitInputs[i];
-        if (document.activeElement === input) 
+        const row = rows[i];
+        let [digitLeft, digitRight] = row.querySelectorAll(".digit-input");
+        let sumBox = sumBoxes[i];
+
+        if (digitLeft.classList.contains("digit-valid") && digitRight.classList.contains("digit-valid"))
+            sumBox.classList.add("digit-valid");        
+    }
+
+    // update border style of box that has focus
+    if (currentInput !== null)
+    {
+        if (currentInput.classList.contains("digit-invalid"))
+            currentInput.classList.add("focus-incorrect");
+        else if (currentInput.classList.contains("digit-valid"))
+            currentInput.classList.add("focus-correct");
+        else
+            currentInput.classList.add("focus-neutral");
+    }
+
+    updateHints(digitCounts);
+
+    let puzzleComplete = true;
+    for (let i = 0; i < 5; i++)
+        if ( !sumBoxes[i].classList.contains("digit-valid") )
+            puzzleComplete = false;
+
+    if (puzzleComplete)
+        showModal("Puzzle Complete", "<p>Congratulations!</p> <p>Click <strong>New</strong> to try a new puzzle.</p>");
+}
+
+function updateHints(digitCounts)
+{
+    for (let i = 0; i < hintColumns.length; i++)
+    {
+        const column = hintColumns[i];
+
+        // clear existing content and rebuild from scratch
+        column.textContent = "";
+
+        if (!hintsEnabled)
+            continue;
+
+        const pairs = hintPairsPerRow[i];
+
+        for (let j = 0; j < pairs.length; j++)
         {
-            if ( input.classList.contains("digit-valid") )
-                input.classList.add("focus-correct");
+            const a = pairs[j][0];
+            const b = pairs[j][1];
+
+            const line = document.createElement("div");
+
+            const digitUsed =
+                (digitCounts[a] > 0) ||
+                (digitCounts[b] > 0);
+
+            if (digitUsed)
+                line.className = "hint-line-blocked";
             else
-                input.classList.add("focus-neutral");
+                line.className = "hint-line-available";
+
+            line.textContent = a + " + " + b;
+            column.appendChild(line);
         }
     }
 }
+
+// create buttons
+const digitButtonsContainer = document.getElementById("digitButtonsContainer");
+
+// 0–4 in first row, 5–9 in second row
+const buttonLayout = [
+    ["0", "1", "2", "3", "4"],
+    ["5", "6", "7", "8", "9"]
+];
+
+const buttonsGrid = document.createElement("div");
+buttonsGrid.className = "digit-buttons-grid";
+
+for (let r = 0; r < buttonLayout.length; r++)
+{
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "digit-buttons-row";
+
+    for (let c = 0; c < buttonLayout[r].length; c++)
+    {
+        const digit = buttonLayout[r][c];
+
+        const digitButton = document.createElement("button");
+        digitButton.type = "button";
+        digitButton.className = "digit-button";
+        digitButton.textContent = digit;
+
+        digitButton.addEventListener("click", () => 
+        {
+            if (currentInput !== null)
+            {
+                currentInput.textContent = digit;
+                updateGameState();
+                currentInput.focus();
+            }
+        });
+
+        rowDiv.appendChild(digitButton);
+    }
+
+    buttonsGrid.appendChild(rowDiv);
+}
+
+digitButtonsContainer.appendChild(buttonsGrid);
+
+// buttons
+
+const newButton = document.getElementById("newButton");
+const rulesButton = document.getElementById("rulesButton");
+const hintsButton = document.getElementById("hintsButton");
+const eraseButton = document.getElementById("eraseButton");
+
+newButton.addEventListener("click", () => 
+{
+    // clear all digit boxes
+    for (let i = 0; i < digitInputs.length; i++)
+        digitInputs[i].textContent = "";
+
+    currentInput = null;
+
+    // update sum boxes and hint pairs
+    sumValues = generateNewSums();
+
+    for (let i = 0; i < sumBoxes.length; i++)
+        sumBoxes[i].textContent = String(sumValues[i]);
+
+    for (let i = 0; i < hintPairsPerRow.length; i++)
+        hintPairsPerRow[i] = generateHintPairs(sumValues[i]);
+
+    hintsEnabled = false;
+
+    updateGameState();
+});
+
+rulesButton.addEventListener("click", () => 
+{
+    const bodyHtml = `
+      <p><strong>Goal:</strong> Fill in the ten squares with the digits 0-9 so that:</p>
+      <ul>
+        <li>The digits add up to the number on the right.</li>
+        <li>Each digit from 0 to 9 is used exactly once.</li>
+      </ul>
+      <p><strong>How to play:</strong></p>
+      <ul>
+        <li>Tap a box to select it, then tap a digit button 
+            to enter it in the selected box.</li>
+        <li>Green borders mean the sum for that row is correct.</li>
+        <li>Red borders mean the sum for that row is incorrect 
+            or a digit has already been used.</li>
+        <li>Tap <em>Hints</em> to see which digit pairs add up to the number on the right.
+            Hint pairs are grayed out once a digit has been used.</li>
+      </ul>
+      <br>
+      <center>Designed and programmed by Lee Stemkoski<br>
+      for the Adelphi University Innovation Center<br>
+      © 2025 - All Rights Reserved</center>
+      <br>
+      
+    `;
+    showModal("Digit Pairs: Rules", bodyHtml);
+});
+
+hintsButton.addEventListener("click", () => 
+{
+    hintsEnabled = !hintsEnabled;
+    updateGameState();
+});
+
+eraseButton.addEventListener("click", () => 
+{
+    if (currentInput !== null)
+    {
+        currentInput.textContent = "";
+        updateGameState();
+        currentInput.focus();
+    }
+});
+
+// modal elements
+
+const modalOverlay = document.getElementById("modalOverlay");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
+const modalCloseButton = document.getElementById("modalCloseButton");
+ 
+function showModal(title, htmlBody)
+{
+    modalTitle.textContent = title;
+    modalBody.innerHTML = htmlBody;
+    modalOverlay.classList.remove("modal-hidden");
+}
+
+function hideModal()
+{
+    modalOverlay.classList.add("modal-hidden");
+}
+
+modalCloseButton.addEventListener("click", hideModal);
+
+// close modal when clicking the darkened backdrop
+modalOverlay.addEventListener("click", (event) =>
+{
+    if (event.target === modalOverlay)
+        hideModal();
+});
+
+updateGameState();
     
 </script>
 </body>
