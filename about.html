@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Digit Pairs – Puzzle Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Verdana, system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5ff;
+      color: #212;
+    }
+
+    header {
+      background: #212;
+      color: #f5f5f7;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 20px auto 40px;
+      padding: 0 16px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+    }
+
+    /* Puzzle diagrams */
+    .puzzle {
+      display: inline-block;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f0f0f5;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    .puzzle-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 0;
+      font-size: 1.2rem;
+    }
+
+    .puzzle .box {
+      text-align: center;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .puzzle .box.left {
+      width: 2.4rem;
+      height: 2.4rem;
+      line-height: 2.4rem;
+      border: 2px dashed #444444;
+      background: #ffffff;
+    }
+
+    .puzzle .box.sum {
+      min-width: 3rem;
+      padding: 4px 8px;
+      border: 2px solid #666666;
+      background: #222222;
+      color: #f5f5f5;
+      font-weight: bold;
+    }
+
+    .puzzle .op {
+      min-width: 1rem;
+      text-align: center;
+      font-weight: bold; 
+    }
+
+    .puzzle.solution .box.left {
+      font-family: "Comic Sans MS", "Comic Sans", "Bradley Hand", cursive;
+      font-weight: normal;
+    }
+
+    .container {
+  display: flex;
+  align-items: center; /* vertically center image with text */
+  gap: 20px;           /* spacing between text and image */
+}
+
+.container img {
+  width: 150px;        /* set any size you want */
+  height: auto;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Digit Pairs</h1>
+  </header>
+
+  <main>
+      <p>
+        <b><i>Digit Pairs</i></b> is a number puzzle 
+        where you use each digit from 0 to 9 exactly once 
+        to create pairs that add up to the given values. 
+        Each puzzle contains five addition problems, 
+        each with a fixed number on the right.
+        Your goal is to fill in the boxes on the left. 
+      </p>
+     
+
+      <p>For example, here is a puzzle where the digits must add up to
+         5, 6, 7, 13, and 14:</p>
+
+      <!-- Unsolved puzzle layout -->
+      <div class="puzzle" aria-label="Digit Pairs puzzle layout, unsolved">
+        <div class="puzzle-row">
+          <div class="box left">&nbsp;</div>
+          <span class="op">+</span>
+          <div class="box left">&nbsp;</div>
+          <span class="op">=</span>
+          <div class="box sum">5</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">&nbsp;</div>
+          <span class="op">+</span>
+          <div class="box left">&nbsp;</div>
+          <span class="op">=</span>
+          <div class="box sum">6</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">&nbsp;</div>
+          <span class="op">+</span>
+          <div class="box left">&nbsp;</div>
+          <span class="op">=</span>
+          <div class="box sum">7</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">&nbsp;</div>
+          <span class="op">+</span>
+          <div class="box left">&nbsp;</div>
+          <span class="op">=</span>
+          <div class="box sum">13</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">&nbsp;</div>
+          <span class="op">+</span>
+          <div class="box left">&nbsp;</div>
+          <span class="op">=</span>
+          <div class="box sum">14</div>
+        </div>
+      </div>
+
+      <p>And here is one possible solution:</p>
+
+      <!-- Solved puzzle layout with handwriting-style digits -->
+      <!-- This solution uses each digit 0–9 exactly once:
+           2+3=5, 1+5=6, 0+7=7, 4+9=13, 6+8=14 -->
+      <div class="puzzle solution" aria-label="Digit Pairs puzzle layout with one solution shown">
+        <div class="puzzle-row">
+          <div class="box left">2</div>
+          <span class="op">+</span>
+          <div class="box left">3</div>
+          <span class="op">=</span>
+          <div class="box sum">5</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">1</div>
+          <span class="op">+</span>
+          <div class="box left">5</div>
+          <span class="op">=</span>
+          <div class="box sum">6</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">0</div>
+          <span class="op">+</span>
+          <div class="box left">7</div>
+          <span class="op">=</span>
+          <div class="box sum">7</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">4</div>
+          <span class="op">+</span>
+          <div class="box left">9</div>
+          <span class="op">=</span>
+          <div class="box sum">13</div>
+        </div>
+        <div class="puzzle-row">
+          <div class="box left">6</div>
+          <span class="op">+</span>
+          <div class="box left">8</div>
+          <span class="op">=</span>
+          <div class="box sum">14</div>
+        </div>
+      </div>
+
+    <br>
+    <hr>
+    <br>
+
+      <h2>Three Ways to Play</h2>
+
+      <h3>1. Pencil-and-Paper </h3>
+      <p>
+        You can print out <a href="digit-pairs-blank-puzzles.pdf">blank puzzles</a>
+        and select a set of fixed numbers from our 
+        <a href="digit-pairs-puzzle-numbers.pdf">list of puzzles</a>.
+      </p>
+      
+      <h3>2. Online </h3>
+    
+        <p>
+          There is an online web-based version available: <a href="https://innovation-adelphiu.github.io/digit-pairs/">Play Digit Pairs</a>
+        </p>
+      
+        <center>
+          <img src="digit-puzzles-app.png" height="200" />
+        </center>
+
+      <h3>3. 3D Printed Version</h3>
+      <p>
+        If you have access to a 3D printer, you can create a physical
+        version of the puzzle where you place numbers on tiles. 
+        Model files are available on 
+        <a href="http://printables.com">printables.com</a>
+        and
+        <a href="http://thingiverse.com">thingiverse.com</a>.
+      </p> 
+   
+      <center>
+          <img src="digit-pairs-3D-print-crop.jpg" height="200" />
+        </center>
+
+      <hr>
+      <center>
+      Designed and programmed by Lee Stemkoski<br>
+      for the Adelphi University Innovation Center<br>
+      © 2025 - All Rights Reserved
+      </center>
+      <hr>
+  </main>
+
+</body>
+</html>
